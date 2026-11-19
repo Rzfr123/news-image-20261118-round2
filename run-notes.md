@@ -71,3 +71,73 @@ the Kuwait shot is zoomed onto the towers.
 
 `main.ts`, `package.json`, `entry.png`, `render.py`, `assets/` (5 photos),
 `README.md`, `LICENSE`, `.makefun/owner.json`, `run-notes.md`
+
+---
+
+# Revision 1 — broadsheet flyer with broadcast accents (2026-11-19 ~12:55 WIB)
+
+User feedback verbatim: "Coba bikin lagi lebih menarik seperti selembaran
+koran atau background berita" — make it again, more attractive, like a
+newspaper broadsheet/flyer or a TV news broadcast background.
+
+## What changed (same stories, same five photos, no fact changes)
+
+- Dark navy broadsheet masthead: "THE WORLD TODAY" in large white serif,
+  red ● LIVE pill top right, "WEDNESDAY • 18 NOVEMBER 2026" under the
+  pill, tagline "The world's news in one image".
+- Red BREAKING banner under the masthead: "TRUMP LANDS IN SHENZHEN —
+  XI AND PUTIN MEET AHEAD OF TALKS".
+- Lead photo (Shenzhen) zoomed 1.45x onto the tower cluster, with a
+  broadcast lower-third overlay: red kicker "SHENZHEN • DIPLOMACY",
+  headline "THREE LEADERS, ONE SUMMIT", two-line deck.
+- Same 2×2 cards (Kuwait zoomed 1.3x onto the towers), headlines now
+  auto-wrapped with a hard overflow check instead of hand-broken lines;
+  card photos narrowed to 180px so headlines fit.
+- Briefs restyled as a dark TV-news ticker strip (red labels):
+  EBOLA / ANTHROPIC on line 1, MEASLES on line 2, with a measured
+  fit check that fails the render on overflow.
+- `render.py` and `main.ts` rewritten fresh in-session (old files
+  deleted without reading them). `main.ts` now requires IHDR exactly
+  1024×1024 and bit depth 8 / colour type 2 (truecolour RGB) in
+  addition to PNG magic + 1 MiB limit.
+
+## Image
+
+- File: `entry.png`
+- Dimensions: 1024 x 1024 px
+- Size: 730,810 bytes (limit 1,048,576)
+- SHA-256: `a2e25cbf2e2d9c326c0be93d8cbfee37f50f10a04107447ec2c30b09be974aea`
+- Commit: (see below)
+
+## Local tests (2026-11-19 ~12:55 WIB)
+
+- `python3 render.py` — rendered cleanly. Visual check v1 found 4
+  defects: masthead subtitle/date overlap, card headlines overflowing
+  their columns ("IRAN HITS KUWAIT," and "KERCH BRIDGE HIT" clipped),
+  ticker line 1 clipped at the right edge, lead skyline too distant.
+  Genuine revision applied (zoom parameter on fit_cover, auto-wrapped
+  headlines + overflow assertions, ticker fit check, restructured
+  nameplate) and re-rendered.
+- Visual check v2: no overlaps, no clipped text, all text readable,
+  all five photos recognisable, hierarchy clear (masthead → breaking →
+  lead lower-third → cards → ticker).
+- Determinism: rendered twice, `cmp` clean, identical sha256
+  `a2e25cbf...be974aea`; `main.ts` run twice into `out`/`out2`,
+  byte-identical.
+- `MAKEFUN_OUTPUT_DIR=out node main.ts` — exit 0, `out/entry.png`
+  written, digest matches source. PIL verified: 1024x1024 RGB.
+- Negative tests (by temporarily swapping entry.png): non-PNG file →
+  exit 1 ("not a PNG"); forged IHDR 1280x1024 → exit 1; good file
+  restored afterwards, sha256 unchanged.
+- README, LICENSE, `.makefun/owner.json` untouched; repo About
+  already set.
+
+## Bundle notes (for the parent's later step — NOT acted on here)
+
+- Prompt file: `~/workspace/makefun/prompt-news-image-20261118-round2-rev1.txt`
+  (user's verbatim feedback, stored OUTSIDE the repo)
+- `--prompt-origin handed-off`
+- `--prompt-via "subagent task from the main agent"`
+- `--parent-session main session only 710bc693-2de5-453e-a87f-8be6fb75c614`
+- DO NOT bundle/submit from this session; parent shows the image to
+  the user first and bundles/submits only after the user's approval.
