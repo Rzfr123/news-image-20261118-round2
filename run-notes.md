@@ -142,3 +142,59 @@ newspaper broadsheet/flyer or a TV news broadcast background.
 - `--parent-session main session only 710bc693-2de5-453e-a87f-8be6fb75c614`
 - DO NOT bundle/submit from this session; parent shows the image to
   the user first and bundles/submits only after the user's approval.
+
+---
+
+# Fix 1 — main.ts path fix so the grader can run it from any cwd (2026-11-19 ~13:45 WIB)
+
+Submission 01a1f25e was REJECTED on run_completes: the grader runs
+`node /bot/main.ts` from a cwd that is NOT /bot, and main.ts read
+"entry.png" via a cwd-relative path, failing with "cannot read
+entry.png" (exit 1). Reproduced before the fix:
+`cd /tmp && MAKEFUN_OUTPUT_DIR=/tmp/out node main.ts` → exit 1;
+from the repo dir → exit 0.
+
+Fix: `main.ts` rewritten fresh in-session (full rewrite, not a patch).
+`entry.png` is now resolved relative to the script file via
+`dirname(fileURLToPath(import.meta.url))` — the same pattern round 1
+uses. Same validation kept: PNG magic, size ≤ 1 MiB, IHDR exactly
+1024×1024, bit depth 8 / colour type 2. Output dir is now
+`process.env.MAKEFUN_OUTPUT_DIR || "/output"` (RULES.txt: the program
+writes to /output/entry.png; the grader has a writable /output). Added
+a read-back check: the written copy's sha256 must match the source.
+`entry.png`, `render.py`, `README.md`, `LICENSE`, `.makefun/owner.json`
+NOT touched. Image bytes unchanged.
+
+## Verification (all run 2026-11-19 ~13:45 WIB)
+
+- (a) Different cwd: `cd /tmp && MAKEFUN_OUTPUT_DIR=/tmp/out node
+  <repo>/main.ts` → exit 0, `ok: /tmp/out/entry.png 1024x1024 730810
+  bytes sha256=a2e25cbf2e2d9c326c0be93d8cbfee37f50f10a04107447ec2c30b09be974aea`;
+  `cmp` vs entry.png clean (byte-identical).
+- (b) Repo dir: `MAKEFUN_OUTPUT_DIR=out2 node main.ts` → exit 0, same
+  sha256 `a2e25cbf...be974aea`, byte-identical.
+- (c) Determinism: two runs into separate dirs → both exit 0, both
+  sha256 `a2e25cbf2e2d9c326c0be93d8cbfee37f50f10a04107447ec2c30b09be974aea`,
+  `cmp` clean.
+- (d) Negative tests (in a /tmp scratch copy of main.ts, real entry.png
+  never touched): non-PNG file → exit 1 ("not a PNG (bad magic
+  bytes)"); forged IHDR (height patched 1024 → 1280) → exit 1 ("IHDR
+  dimensions 1024x1280, expected exactly 1024x1024"). Real entry.png
+  re-checked afterwards: sha256 `a2e25cbf...be974aea` unchanged.
+- (e) /output default: `cd /tmp && env -u MAKEFUN_OUTPUT_DIR node
+  <repo>/main.ts` → exit 0, wrote `/output/entry.png` (created on
+  this machine since we run as root), byte-identical, sha256
+  `a2e25cbf...be974aea`. Default path verified for real, not just by
+  reading the code.
+
+## Bundle notes (for the parent's later step — NOT acted on here)
+
+- Prompt file: `~/workspace/makefun/prompt-news-image-20261118-round2-fix1.txt`
+  (user's verbatim words "Gas, perbaiki + submit ulang", stored OUTSIDE the repo)
+- `--prompt-origin handed-off`
+- `--prompt-via "subagent task from the main agent"`
+- Parents: coordinator session 56cca118-0bec-4605-8966-06e5f5ed3485 +
+  main session 710bc693-2de5-453e-a87f-8be6fb75c614
+- DO NOT bundle/submit from this session; parent bundles/submits only
+  after the user's approval. Competition closes 2026-11-20T00:00:00Z
+  (tomorrow 07:00 WIB).

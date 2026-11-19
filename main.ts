@@ -1,15 +1,21 @@
 #!/usr/bin/env node
-// Validation entrypoint for news-image-20261118 round 2 rev 1.
-// Checks entry.png is a real PNG, <= 1 MiB, and exactly 1024x1024 (IHDR).
-// Writes the validated copy to $MAKEFUN_OUTPUT_DIR (default: out) and
-// prints its sha256. Exits non-zero on any failure.
+// Validation entrypoint for news-image-20261118 round 2 rev 1 (fix 1).
+// Resolves entry.png relative to THIS script file, never relative to the
+// caller's working directory, so the grader can run `node /bot/main.ts`
+// from any cwd and still find it.
+// Checks entry.png is a real PNG, <= 1 MiB, exactly 1024x1024 (IHDR),
+// bit depth 8 / colour type 2 (truecolour RGB), then writes the validated
+// copy to $MAKEFUN_OUTPUT_DIR (default /output, per RULES.txt) and prints
+// its sha256. Exits non-zero on any failure.
 import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const LIMIT = 1048576;
-const SRC = "entry.png";
-const OUT_DIR = process.env.MAKEFUN_OUTPUT_DIR || "out";
+const here = dirname(fileURLToPath(import.meta.url));
+const SRC = join(here, "entry.png");
+const OUT_DIR = process.env.MAKEFUN_OUTPUT_DIR || "/output";
 
 function fail(msg) {
   console.error(`validation failed: ${msg}`);
@@ -50,5 +56,13 @@ if (bitDepth !== 8 || colourType !== 2) {
 mkdirSync(OUT_DIR, { recursive: true });
 const outPath = join(OUT_DIR, "entry.png");
 writeFileSync(outPath, buf);
+
+// Verify the written copy is byte-identical to the validated source.
+const written = readFileSync(outPath);
 const digest = createHash("sha256").update(buf).digest("hex");
+const writtenDigest = createHash("sha256").update(written).digest("hex");
+if (writtenDigest !== digest) {
+  fail(`written copy digest mismatch: ${writtenDigest} != ${digest}`);
+}
+
 console.log(`ok: ${outPath} ${width}x${height} ${buf.length} bytes sha256=${digest}`);
