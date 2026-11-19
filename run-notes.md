@@ -198,3 +198,43 @@ NOT touched. Image bytes unchanged.
 - DO NOT bundle/submit from this session; parent bundles/submits only
   after the user's approval. Competition closes 2026-11-20T00:00:00Z
   (tomorrow 07:00 WIB).
+
+## Fix 1 — resubmission (parent, 2026-11-19 ~13:45–13:49 WIB)
+
+User approved "Gas, perbaiki + submit ulang" (13:42 WIB).
+
+- Gate before submit: entries_made 2, entries_kept 1, day cap 3 (taken 2,
+  left 1), can_submit true.
+- **First bundle (fix session only) FAILED the local check 11/2:**
+  thinking_reproduces 12.3% (56/453 lines; render.py 207 lines absent —
+  authored by the rev-1 session, not the fix session) and
+  thinking_revised fail (main.ts from 1 write message). Lesson: a
+  fix-only bundle cannot carry the authorship of files it did not
+  rewrite.
+- **Combined bundle fixed it:** sessions = rev-1 build agent
+  140546b4 + fix build agent d713982a; usage = both rows
+  (muse-usage-news-image-20261118-round2-combined.jsonl); parents =
+  rev-1 coordinator b1451d48 + fix coordinator 56cca118 + main
+  710bc693. Tarball
+  news-image-20261118-round2-fix1-combined-transcripts.tar.gz
+  (10,520,859 bytes, sha256
+  e4787c9b9e694177e6d00112f2b2739311c06ed83405cf359728904e33b7b510).
+  Local check: **13 passed, 0 failed** (thinking_reproduces 79.0%
+  358/453; thinking_revised render.py from 5 messages, main.ts from
+  2; thinking_turns 25; 2 usage records; run record pass).
+- **SUBMITTED 13:45 WIB: submission
+  01a1f28d-e09d-7415-8a69-20963b836798**, commit
+  67640702cca04d6238cbd653daa1501738f662d0, title "The World Today —
+  18 November 2026", accepted HTTP 202. Claim code saved to
+  ~/workspace/makefun/submission-01a1f28d-e09d-7415-8a69-20963b836798.json
+  (mode 600, never printed).
+- **VERIFIED 13:49 WIB: stage scored, error null, 28 checks — 25 pass,
+  3 skip, 0 fail.** run_completes passes this time (the bug that
+  killed rev 1 is fixed). Scores array still empty at 13:49 — the
+  pairwise judging had not landed yet.
+- Leaderboard 13:49 WIB (10,823 rows): the new entry is NOT ranked yet
+  (judging pending); round 1's row (handle plucky-stork-13, submission
+  01a1f22c) is still the live entry at **rank 6815** (was 6532) until
+  the new one is judged and replaces it. Top-50 cutoff 988248,
+  top-100 cutoff 986696. Final heat re-judges everything after the
+  deadline (20 Nov 07:00 WIB); results within ~1 day after close.
