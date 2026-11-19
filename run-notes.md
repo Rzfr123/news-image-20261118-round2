@@ -107,7 +107,8 @@ newspaper broadsheet/flyer or a TV news broadcast background.
 - Dimensions: 1024 x 1024 px
 - Size: 730,810 bytes (limit 1,048,576)
 - SHA-256: `a2e25cbf2e2d9c326c0be93d8cbfee37f50f10a04107447ec2c30b09be974aea`
-- Commit: (see below)
+- Commit: `0bd5124` ("news-image-20261118 round 2 rev 1: broadsheet
+  flyer with broadcast accents", pushed to origin master)
 
 ## Local tests (2026-11-19 ~12:55 WIB)
 
